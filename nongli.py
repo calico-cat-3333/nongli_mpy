@@ -1,12 +1,16 @@
 import time
 
 # 公历向农历转换程序
-# 基于查表法，支持 1901-2099 年的数据
+# 基于查表法，支持 1901-2099 年的数据，数据来自著名的 nongli.c 算法有小修改
 # 同时支持 micropython 和 python3
 # 
 # 注意：本程序中，农历年数字指的是农历年春节所在的公历年
 
-# 1901 - 2099 年的农历数据，每年 3 byte
+# 农历数据及计算算法参考：
+# https://github.com/lvgl/lvgl/blob/master/src/widgets/calendar/lv_calendar_chinese.c
+# https://github.com/ywf-147/IIC-OLED/blob/master/nongli.c
+
+# 农历数据，每年 3 byte
 # bits:
 # aaaabbbbbbbbbbbbbccddddd
 # a: 4 bit，闰月月份，0 为无闰月
@@ -15,6 +19,8 @@ import time
 # d: 5 bit, 表示农历春节所在的公历日期
 nongli_data_raw = b"\x04\xaeS\nWHU&\xbd\r&P\r\x95DF\xaa\xb9\x05jM\t\xadB$\xae\xb6\x04\xaeJjM\xbe\nMR\r%F]R\xba\x0bTN\rjC)m7\t[Kt\x9b\xc1\x04\x97T\nKH[%\xbc\x06\xa5P\x06\xd4EJ\xda\xb8\x02\xb6M\tWB$\x97\xb7\x04\x97JfK>\rJQ\x0e\xa5FV\xd4\xba\x05\xadN\x02\xb6D978\t.K|\x96\xbf\x0c\x95S\rJHm\xa5;\x0bUO\x05jEJ\xad\xb9\x02]M\t-B,\x95\xb6\n\x95J{J\xbd\x06\xcaQ\x0bUFUZ\xbb\x04\xdaN\n[C5+\xb8\x05+L\x8a\x95?\x0e\x95R\x06\xaaHz\xd5<\n\xb5O\x04\xb6EJW9\nWM\x05&B>\x935\r\x95Iu\xaa\xbe\x05jQ\tmFT\xae\xbb\x04\xadO\nMCM&\xb7\r%K\x8dR\xbf\x0bTR\x0bjGim<\t[P\x04\x9bEJK\xb9\nKM\xab%\xc2\x06\xa5T\x06\xd4Ij\xda=\n\xb6Q\t7FT\x97\xbb\x04\x97O\x06KD6\xa57\x0e\xa5J\x86\xb2\xbf\x05\xacS\n\xb6GY6\xbc\t.P\x0c\x96EMJ\xb8\rJL\r\xa5A%\xaa\xb6\x05jIz\xad\xbd\x02]R\t-G\\\x95\xba\n\x95N\x0bJCKU7\n\xd5J\x95Z\xbf\x04\xbaS\n[He+\xbc\x05+P\n\x93EGJ\xb9\x06\xaaL\n\xd5A$\xda\xb6\x04\xb6JiW=\nNQ\r&F^\x93:\rSM\x05\xaaC6\xb57\tmK\xb4\xae\xbf\x04\xadS\nMHm%\xbc\r%O\rRD]\xaa8\x0bZL\x05mA$\xad\xb6\x04\x9bJzK\xbe\nKQ\n\xa5F[R\xba\x06\xd2N\n\xdaB5[7\t7K\x84\x97\xc1\x04\x97S\x06KHf\xa5<\x0e\xa5O\x06\xb2DJ\xb68\n\xaeL\t.B<\x975\x0c\x96I}J\xbd\rJQ\r\xa5EU\xaa\xba\x05jN\nmCE.\xb7\x05-K\x8a\x95\xbf\n\x95S\x0bJGkU;\n\xd5O\x05ZEJ]8\n[L\x05+B:\x93\xb6\x06\x93Iw)\xbd\x06\xaaQ\n\xd5FT\xda\xba\x04\xb6N\nWCE'8\r&J\x8e\x93>\rRR\r\xaaGf\xb5;\x05mO\x04\xaeEJN\xb9\nML\r\x15A-\x92\xb5"
 nongli_data = memoryview(nongli_data_raw)
+# 农历数据对应的公历年范围
+nongli_data_range = (1901, 2099)
 
 month_total_days = (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365)
 
@@ -31,9 +37,9 @@ shengxiao_str = '鼠牛虎兔龙蛇马羊猴鸡狗猪'
 # 输入 year 为公历年
 # 返回闰月月份，大小月信息，当年春节到元旦天数
 def get_nongli_year_info(year):
-    if year < 1901 or year > 2099:
+    if year < nongli_data_range[0] or year > nongli_data_range[1]:
         raise ValueError('year out of range')
-    table_addr = (year - 1901) * 3
+    table_addr = (year - nongli_data_range[0]) * 3
     data = int.from_bytes(nongli_data[table_addr:table_addr + 3], 'big')
     sprf_date = (data & 0x1f) - 1 # 春节到元旦的天数
     if (data & 0x60) >> 5 != 1:
