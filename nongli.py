@@ -169,7 +169,7 @@ def today():
 # year 为公历年
 # month 为公历月
 # 返回值为当月第一个节气的日期和编号，第二个节气的日期和编号，节气编号从 0 开始，0 表示立春
-def get_jieqi(year, month):
+def get_jieqi_month(year, month):
     if year < nongli_data_range[0] or year > nongli_data_range[1]:
         raise ValueError('year out of range!')
     jq_bases = jieqi_date_base[month - 1]
@@ -195,7 +195,7 @@ def get_jieqi(year, month):
 # 判断是否为节气
 # 输入公历年月日
 # 输出节气编号，输出为 None 表示日期非节气
-def is_jieqi(year, month, day):
+def get_jieqi(year, month, day):
     if year < nongli_data_range[0] or year > nongli_data_range[1]:
         raise ValueError('year out of range!')
     jq = jieqi_date_base[month - 1]
