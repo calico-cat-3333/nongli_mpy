@@ -1,7 +1,7 @@
 import time
 import struct
 
-# 公历向农历转换程序
+# 公历农历转换程序
 # 基于查表法，支持 1901-2099 年的数据，数据来自著名的 nongli.c 算法有小修改
 # 同时支持 micropython 和 python3
 # 
@@ -114,8 +114,7 @@ def get_jieqi_str(jieqi_code):
 def from_date(year, month, day):
     leap_month, mon_days, sprf_date = get_nongli_year_info(year)
     cur_date = month_total_days[month - 1] + day - 1 # 日期到当年元旦的天数
-    if is_leap_year(year) and month > 2:
-        # 闰年
+    if is_leap_year(year) and month > 2: # 闰年
         cur_date += 1
     if (cur_date >= sprf_date):
         # 当前日期在农历春节之后
@@ -160,13 +159,42 @@ def from_timestamp(timestamp):
     return from_date(t[0], t[1], t[2])
 
 # 当前的农历
-# 输入：
-# timestamp: unix 时间戳
 # 返回值：
 # 农历年数字，农历月数字，是否为闰月，农历日
 def today():
     t = time.localtime()
     return from_date(t[0], t[1], t[2])
+
+# 农历到公历转换
+# 输入：农历年，农历月，是否闰月，农历日
+# 返回：公历年，公历月，公历日
+def to_gregorian(nl_year, nl_month, is_leap_month, day):
+    _check_year(nl_year)
+    leap_month, mon_days, sprf_date = get_nongli_year_info(nl_year)
+    cur_date = sprf_date + day - 1
+    month_idx = nl_month
+    if is_leap_month and nl_month == leap_month:
+        month_idx += 1
+    elif is_leap_month:
+        raise ValueError('not a vaild nongli date')
+    if leap_month != 0 and nl_month > leap_month:
+        month_idx += 1
+    for i in range(month_idx - 1):
+        days_cur_month = 29 + ((mon_days >> (12 - i)) & 1) # 当前农历月天数
+        cur_date += days_cur_month # 计算当前农历日到当年元旦的偏移量
+    leap_year = 1 if is_leap_year(nl_year) else 0
+    if cur_date >= 365 + leap_year:
+        # 下一年
+        cur_date -= (365 + leap_year)
+        if cur_date >= month_total_days[0] and cur_date < month_total_days[1]:
+            return nl_year + 1, 1, cur_date + 1
+        else:
+            return nl_year + 1, 2, cur_date - 30
+    for i in range(nl_month, 13): # 农历月份一定比对应的公历月份小
+        cmp1 = month_total_days[i - 1] + (leap_year if i - 1 >= 2 else 0)
+        cmp2 = month_total_days[i] + (leap_year if i >= 2 else 0)
+        if cur_date >= cmp1 and cur_date < cmp2:
+            return  nl_year, i, cur_date - cmp1  + 1
 
 # 获取某年某月的节气信息
 # year 为公历年
