@@ -52,12 +52,15 @@ shengxiao_str = '鼠牛虎兔龙蛇马羊猴鸡狗猪'
 
 jieqi_strs = ('立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', '冬至', '小寒', '大寒')
 
+def _check_year(year):
+    if year < nongli_data_range[0] or year > nongli_data_range[1]:
+        raise ValueError('year out of range')
+
 # 从数据表中提取信息
 # 输入 year 为公历年
 # 返回闰月月份，大小月信息，当年春节到元旦天数
 def get_nongli_year_info(year):
-    if year < nongli_data_range[0] or year > nongli_data_range[1]:
-        raise ValueError('year out of range')
+    _check_year(year)
     table_addr = (year - nongli_data_range[0]) * 3
     data = int.from_bytes(nongli_data[table_addr:table_addr + 3], 'big')
     sprf_date = (data & 0x1f) - 1 # 春节到元旦的天数
@@ -107,7 +110,7 @@ def get_jieqi_str(jieqi_code):
 # month: 公历月
 # day: 公历日
 # 返回值：
-# 农历年数字，农历月数字，是否为闰月，农历日
+# 农历年数字，农历月数字，农历月天数，是否为闰月，农历日
 def from_date(year, month, day):
     leap_month, mon_days, sprf_date = get_nongli_year_info(year)
     cur_date = month_total_days[month - 1] + day - 1 # 日期到当年元旦的天数
@@ -145,7 +148,7 @@ def from_date(year, month, day):
         if m_idx == leap_month + 1:
             is_leap_month = True
         m_idx -= 1
-    return year, m_idx, is_leap_month, cur_date # 农历年，月，是否闰月，日
+    return year, m_idx, days_cur_month, is_leap_month, cur_date # 农历年，月，月天数，是否闰月，日
 
 # 从 unix 时间戳到农历
 # 输入：
@@ -170,8 +173,7 @@ def today():
 # month 为公历月
 # 返回值为当月第一个节气的日期和编号，第二个节气的日期和编号，节气编号从 0 开始，0 表示立春
 def get_jieqi_month(year, month):
-    if year < nongli_data_range[0] or year > nongli_data_range[1]:
-        raise ValueError('year out of range!')
+    _check_year(year)
     jq_bases = jieqi_date_base[month - 1]
     jq1 = jq_bases >> 5
     jq2 = jq_bases & 0x1f
@@ -196,8 +198,7 @@ def get_jieqi_month(year, month):
 # 输入公历年月日
 # 输出节气编号，输出为 None 表示日期非节气
 def get_jieqi(year, month, day):
-    if year < nongli_data_range[0] or year > nongli_data_range[1]:
-        raise ValueError('year out of range!')
+    _check_year(year)
     jq = jieqi_date_base[month - 1]
     jqn = 1 if day > 15 else 0 # 在上半个月则用当月第一个节气的数据
     if jqn:
