@@ -29,8 +29,8 @@ month_str = nongli.get_month_str(month, is_leap_month)
 day_str = nongli.get_day_str(day)
 jieqi = nongli.get_jieqi(y, m, d)
 jieqi_str = nongli.get_jieqi_str(jieqi)
-today_holidays = holidays.today()
-print(y, m, d, ': 农历', year_str + shengxiao + '年', month_str, day_str, '节气：', jieqi_str, '节日：', today_holidays)
+day_holidays = holidays.is_holiday(y, m, d)
+print(y, m, d, ': 农历', year_str + shengxiao + '年', month_str, day_str, '节气：', jieqi_str, '节日：', day_holidays)
 ```
 
 ## nongli - 农历 API 文档
