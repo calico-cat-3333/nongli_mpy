@@ -97,3 +97,7 @@ def is_holiday(year, month, day):
             ret.append(holi[1])
 
     return ret
+
+def today():
+    ct = time.localtime()
+    return is_holiday(ct[0], ct[1], ct[2])
