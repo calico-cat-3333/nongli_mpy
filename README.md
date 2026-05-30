@@ -147,9 +147,9 @@ nongli.py 中提供了公历农历转换和节气相关的 API
   * month (int): 公历月（1–12）。
 * 返回值：((day1, code1), (day2, code2))
   * day1 (int): 当月第一个节气的日期。
-  * code1 (int): 当月第一个节气的编号（0–23）。
+  * code1 (int): 当月第一个节气的编号（0–23）分别对应立春到大寒。
   * day2 (int): 当月第二个节气的日期。
-  * code2 (int): 当月第二个节气的编号。
+  * code2 (int): 当月第二个节气的编号（0–23）分别对应立春到大寒。
 
 #### get_jieqi(year, month, day)
 
@@ -159,8 +159,19 @@ nongli.py 中提供了公历农历转换和节气相关的 API
   * month (int): 公历月（1–12）。
   * day (int): 公历日。
 * 返回值：int or None
-  * 若该日是节气，返回对应的节气编号（0–23）。
+  * 若该日是节气，返回对应的节气编号（0–23）分别对应立春到大寒。
   * 否则返回 None。
+
+#### get_jieqi_date(year, jq_code)
+
+* 功能：获取指定年指定节气的具体日期。
+* 参数：
+  * year (int): 公历年。
+  * jq_code (int)：节气编号（0–23）分别对应立春到大寒。
+* 返回值：(year, month, day)
+  * year (int): 公历年。
+  * month (int): 公历月（1–12）。
+  * day (int): 公历日。
 
 ---
 

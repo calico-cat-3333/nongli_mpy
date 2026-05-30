@@ -2,9 +2,9 @@ import time
 import struct
 
 # 公历农历转换程序
-# 基于查表法，支持 1901-2099 年的数据，数据来自著名的 nongli.c 算法有小修改
+# 基于查表法，支持 1901-2099 年的数据，数据来自著名的 nongli.c 算法和数据有小修改
 # 同时支持 micropython 和 python3
-# 
+#
 # 注意：本程序中，农历年数字指的是农历年春节所在的公历年
 
 # 农历数据及计算算法参考：
@@ -251,3 +251,30 @@ def get_jieqi(year, month, day):
         return jq_code
     else:
         return None
+
+
+# 获取某年某个节气发生的日期。
+# year 为公历年
+# jq_code 为节气编号，节气编号从 0 开始，0 表示立春
+def get_jieqi_date(year, jq_code):
+    _check_year(year)
+    if jq_code == 22 or jq_code == 23:
+        month = 1
+    else:
+        month = (jq_code >> 1) + 2 # jq_code // 2 == jq_code >> 1
+    jqn = jq_code & 1
+    jqd = jieqi_date_base[month - 1]
+    if jqn:
+        jqd = jqd & 0x1f
+    else:
+        jqd = jqd >> 5
+    for i in range(len(jieqi_offset) // 8):
+        yearend = struct.unpack('>H', jieqi_offset[i * 8:i * 8 + 2])[0]
+        if year <= yearend:
+            ofs1 = jieqi_offset[i * 8 + 2 + (5 - (month - 1) // 2)] >> (((month - 1) % 2) * 4)
+            jqd += (ofs1 >> (2 * jqn)) & 0b11
+            break
+    year_idx = (year - nongli_data_range[0]) * 3
+    ofs2 = jieqi_year_offset[year_idx + (2 - (month - 1) // 4)] >> (((month - 1) % 4) * 2)
+    jqd += (ofs2 >> jqn) & 1
+    return (year, month, jqd)
