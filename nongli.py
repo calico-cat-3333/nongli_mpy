@@ -200,7 +200,7 @@ def to_gregorian(nl_year, nl_month, is_leap_month, day):
 # year 为公历年
 # month 为公历月
 # 返回值为当月第一个节气的日期和编号，第二个节气的日期和编号，节气编号从 0 开始，0 表示立春
-def get_jieqi_month(year, month):
+def get_jieqi_of_month(year, month):
     _check_year(year)
     jq_bases = jieqi_date_base[month - 1]
     jq1 = jq_bases >> 5
@@ -225,7 +225,7 @@ def get_jieqi_month(year, month):
 # 判断是否为节气
 # 输入公历年月日
 # 输出节气编号，输出为 None 表示日期非节气
-def get_jieqi(year, month, day):
+def get_jieqi_of_date(year, month, day):
     _check_year(year)
     jq = jieqi_date_base[month - 1]
     jqn = 1 if day > 15 else 0 # 在上半个月则用当月第一个节气的数据
@@ -256,7 +256,7 @@ def get_jieqi(year, month, day):
 # 获取某年某个节气发生的日期。
 # year 为公历年
 # jq_code 为节气编号，节气编号从 0 开始，0 表示立春
-def get_jieqi_date(year, jq_code):
+def get_date_of_jieqi(year, jq_code):
     _check_year(year)
     if jq_code == 22 or jq_code == 23:
         month = 1

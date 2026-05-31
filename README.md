@@ -139,7 +139,7 @@ nongli.py 中提供了公历农历转换和节气相关的 API
 
 ### 节气相关
 
-#### get_jieqi_month(year, month)
+#### get_jieqi_of_month(year, month)
 
 * 功能：获取指定公历月份的两个节气信息。
 * 参数：
@@ -151,7 +151,7 @@ nongli.py 中提供了公历农历转换和节气相关的 API
   * day2 (int): 当月第二个节气的日期。
   * code2 (int): 当月第二个节气的编号（0–23）分别对应立春到大寒。
 
-#### get_jieqi(year, month, day)
+#### get_jieqi_of_date(year, month, day)
 
 * 功能：判断指定公历日期是否为节气，若是则返回节气编号。
 * 参数：
@@ -162,7 +162,7 @@ nongli.py 中提供了公历农历转换和节气相关的 API
   * 若该日是节气，返回对应的节气编号（0–23）分别对应立春到大寒。
   * 否则返回 None。
 
-#### get_jieqi_date(year, jq_code)
+#### get_date_of_jieqi(year, jq_code)
 
 * 功能：获取指定年指定节气的具体日期。
 * 参数：
