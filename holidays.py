@@ -74,7 +74,7 @@ nongli_holidays = (
 # 如果当天是这个节日则返回 True 否则返回 False
 special_holidays = (
     (lambda dt: (dt[4] == 12 and dt[5] == dt[7] and not dt[6]), '除夕'), # 农历腊月最后一天，而且不是闰腊月的最后一天（实际上闰腊月极其罕见，1900-2099 年间也没有闰腊月）
-    (lambda dt: (nongli.get_jieqi(dt[0], dt[1], dt[2]) == 4), '清明节'),
+    (lambda dt: (nongli.get_jieqi_of_date(dt[0], dt[1], dt[2]) == 4), '清明节'),
     (lambda dt: (dt[:3] == _nth_weekday_of_month(dt[0], 5, 2, 6)), '母亲节'), # 五月的第二个周日
     (lambda dt: (dt[:3] == _nth_weekday_of_month(dt[0], 6, 3, 6)), '父亲节'), # 六月的第三个周日
     (lambda dt: (dt[:3] == _nth_weekday_of_month(dt[0], 11, -1, 3)), '感恩节'), # 十一月的最后一个周四
